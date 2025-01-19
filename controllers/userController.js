@@ -29,7 +29,7 @@ exports.registerUser = async (req, res) => {
         user.apiAccessToken = apiAccessToken;
         await user.save();
 
-        res.status(201).json({ message: 'User registered successfully', user, apiAccessToken });
+        res.status(200).json({ message: 'User registered successfully', user, apiAccessToken });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });

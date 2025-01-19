@@ -1,0 +1,8 @@
+const express = require('express');
+const router = express.Router();
+const { registerUser } = require('../controllers/userController'); // Import the registerUser controller
+
+// POST request to register a new user
+router.post('/register', registerUser);  // Make sure you're passing the function, not a reference or undefined
+
+module.exports = router;

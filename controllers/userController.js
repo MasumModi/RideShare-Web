@@ -3,10 +3,10 @@ const jwt = require('jsonwebtoken');
 
 // Register User
 exports.registerUser = async (req, res) => {
-    const { googleUsername, googleProfilePhotoUrl, googleAccessToken, googleUserId } = req.body;
+    const { googleUsername, googleProfilePhotoUrl, googleUserId } = req.body;
 
     // Validate input fields
-    if (!googleUsername || !googleProfilePhotoUrl || !googleAccessToken || !googleUserId) {
+    if (!googleUsername || !googleProfilePhotoUrl ||  !googleUserId) {
         return res.status(400).json({ message: 'Missing required fields' });
     }
 
@@ -21,7 +21,7 @@ exports.registerUser = async (req, res) => {
         let user = new User({
             googleUsername,
             googleProfilePhotoUrl,
-            googleAccessToken,
+            //googleAccessToken,
             googleUserId
         });
 
@@ -42,7 +42,7 @@ exports.registerUser = async (req, res) => {
                 userID: user.userID,
                 googleUsername: user.googleUsername,
                 googleProfilePhotoUrl: user.googleProfilePhotoUrl,
-                googleAccessToken: user.googleAccessToken,
+               // googleAccessToken: user.googleAccessToken,
                 googleUserId: user.googleUserId,
                 apiAccessToken: user.apiAccessToken,
             },

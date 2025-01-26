@@ -20,9 +20,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    googleAccessToken: {
-        type: String, // Store Google OAuth token
-    },
+    //googleAccessToken: {
+      //  type: String, // Store Google OAuth token
+    //},
     googleUserId: {
         type: String,
         required: true,

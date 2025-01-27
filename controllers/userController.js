@@ -1,6 +1,22 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
+function sendResponse(responseUser, responseMessage)
+{
+    return {
+        message: responseMessage,
+        data: {
+            user: {
+                userID: responseUser.userID,
+                googleUsername: responseUser.googleUsername,
+                googleProfilePhotoUrl: responseUser.googleProfilePhotoUrl,
+                googleUserId: responseUser.googleUserId,
+                apiAccessToken: responseUser.apiAccessToken
+            },
+        },
+    }
+}
+
 // Register User
 exports.registerUser = async (req, res) => {
     const { googleUsername, googleProfilePhotoUrl, googleUserId } = req.body;
@@ -8,70 +24,61 @@ exports.registerUser = async (req, res) => {
     // Validate input fields
     if (!googleUsername || !googleProfilePhotoUrl || !googleUserId) {
         return res.status(400).json({
-            status: 400,
             message: 'Invalid/missing input fields',
         });
     }
-
     try {
         // Check if user already exists
         const existingUser = await User.findOne({ googleUserId });
         if (existingUser) {
-            return res.status(409).json({
-                status: 409,
-                message: 'Conflict: User with the given Google user ID already exists',
-            });
+            // Send success response
+            // Generate API access token
+            const apiAccessToken = jwt.sign(
+                { userID: existingUser.userID },
+                process.env.JWT_SECRET
+            );
+
+            // Include API access token in user data
+            existingUser.apiAccessToken = apiAccessToken;
+            await existingUser.save();
+
+            return res.status(201).json(
+                sendResponse(existingUser, 'User logged in successfully.')
+            );
         }
 
         // Create new user
-        const user = new User({
+        const newUser = new User({
             googleUsername,
             googleProfilePhotoUrl,
             googleUserId,
         });
 
         // Save the user
-        await user.save();
+        await newUser.save();
 
         // Generate API access token
         const apiAccessToken = jwt.sign(
-            { userID: user.userID },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
+            { userID: newUser.userID },
+            process.env.JWT_SECRET
         );
 
-        // Generate Auth token
-        const authToken = jwt.sign(
-            { id: user.userID, name: user.googleUsername, role: 'rider' },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        );
+
 
         // Include API access token in user data
-        user.apiAccessToken = apiAccessToken;
-        await user.save();
+        newUser.apiAccessToken = apiAccessToken;
+        await newUser.save();
 
         // Send success response
-        return res.status(201).json({
-            status: 201,
-            message: 'User registered successfully.',
-            data: {
-                user: {
-                    userID: user.userID,
-                    googleUsername: user.googleUsername,
-                    googleProfilePhotoUrl: user.googleProfilePhotoUrl,
-                    googleUserId: user.googleUserId,
-                    apiAccessToken: user.apiAccessToken,
-                    authToken, // Auth token now part of the user object
-                },
-            },
-        });
+        return res.status(201).json(
+            sendResponse(newUser, 'User registered successfully.')
+            );
     } catch (error) {
         console.error('Error registering user:', error);
 
         // Handle internal server error
         return res.status(500).json({
-            status: 500,
+
             message: 'Unexpected server issue',
             error: error.message,
         });

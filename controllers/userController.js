@@ -7,7 +7,7 @@ function sendResponse(responseUser, responseMessage)
         message: responseMessage,
         data: {
             user: {
-                userID: responseUser.userId,
+                userId: responseUser.userId,
                 googleUsername: responseUser.googleUsername,
                 googleProfilePhotoUrl: responseUser.googleProfilePhotoUrl,
                 googleUserId: responseUser.googleUserId,

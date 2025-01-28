@@ -14,8 +14,7 @@ const userSchema = new mongoose.Schema(
         },
         googleUsername: {
             type: String,
-            required: true,
-            unique: true
+            required: true
         },
         googleProfilePhotoUrl: {
             type: String,
@@ -23,7 +22,8 @@ const userSchema = new mongoose.Schema(
         },
         googleUserId: {
             type: String,
-            required: true
+            required: true,
+            unique: true
         }
     },
     { timestamps: true }

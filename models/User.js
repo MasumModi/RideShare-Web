@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid'); // Import uuid to generate unique IDs
 
 const userSchema = new mongoose.Schema(
     {
-        userID: {
+        userId: {
             type: String,
             required: true,
             unique: true,

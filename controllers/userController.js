@@ -7,7 +7,7 @@ function sendResponse(responseUser, responseMessage)
         message: responseMessage,
         data: {
             user: {
-                userID: responseUser.userID,
+                userID: responseUser.userId,
                 googleUsername: responseUser.googleUsername,
                 googleProfilePhotoUrl: responseUser.googleProfilePhotoUrl,
                 googleUserId: responseUser.googleUserId,
@@ -34,7 +34,7 @@ exports.registerUser = async (req, res) => {
             // Send success response
             // Generate API access token
             const apiAccessToken = jwt.sign(
-                { userID: existingUser.userID },
+                { userId: existingUser.userId },
                 process.env.JWT_SECRET
             );
 
@@ -59,7 +59,7 @@ exports.registerUser = async (req, res) => {
 
         // Generate API access token
         const apiAccessToken = jwt.sign(
-            { userID: newUser.userID },
+            { userId: newUser.userId },
             process.env.JWT_SECRET
         );
 

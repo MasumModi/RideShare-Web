@@ -1,86 +1,66 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { encryptData, decryptData } = require('../utils/encryptionUtils');
 
-function sendResponse(responseUser, responseMessage)
-{
-    return {
-        message: responseMessage,
-        data: {
-            user: {
-                userId: responseUser.userId,
-                googleUsername: responseUser.googleUsername,
-                googleProfilePhotoUrl: responseUser.googleProfilePhotoUrl,
-                googleUserId: responseUser.googleUserId,
-                apiAccessToken: responseUser.apiAccessToken
-            },
-        },
+
+
+
+require('dotenv').config();
+
+// Controller Functions
+const sendResponse = (user, message) => ({
+  message,
+  data: {
+    user: {
+      userId: user.userId,
+      googleUsername: user.googleUsername,
+      googleProfilePhotoUrl: user.googleProfilePhotoUrl,
+      googleUserId: user.googleUserId,
+      apiAccessToken: user.apiAccessToken
     }
-}
+  }
+});
 
-// Register User
 exports.registerUser = async (req, res) => {
+  try {
     const { googleUsername, googleProfilePhotoUrl, googleUserId } = req.body;
-
-    // Validate input fields
+    
+    // Input validation
     if (!googleUsername || !googleProfilePhotoUrl || !googleUserId) {
-        return res.status(400).json({
-            message: 'Invalid/missing input fields',
-        });
+      return res.status(400).json({ message: 'Missing required fields' });
     }
-    try {
-        // Check if user already exists
-        const existingUser = await User.findOne({ googleUserId });
-        if (existingUser) {
-            // Send success response
-            // Generate API access token
-            const apiAccessToken = jwt.sign(
-                { userId: existingUser.userId },
-                process.env.JWT_SECRET
-            );
 
-            // Include API access token in user data
-            existingUser.apiAccessToken = apiAccessToken;
-            await existingUser.save();
-
-            return res.status(201).json(
-                sendResponse(existingUser, 'User logged in successfully.')
-            );
-        }
-
-        // Create new user
-        const newUser = new User({
-            googleUsername,
-            googleProfilePhotoUrl,
-            googleUserId,
-        });
-
-        // Save the user
-        await newUser.save();
-
-        // Generate API access token
-        const apiAccessToken = jwt.sign(
-            { userId: newUser.userId },
-            process.env.JWT_SECRET
-        );
-
-
-
-        // Include API access token in user data
-        newUser.apiAccessToken = apiAccessToken;
-        await newUser.save();
-
-        // Send success response
-        return res.status(201).json(
-            sendResponse(newUser, 'User registered successfully.')
-            );
-    } catch (error) {
-        console.error('Error registering user:', error);
-
-        // Handle internal server error
-        return res.status(500).json({
-
-            message: 'Unexpected server issue',
-            error: error.message,
-        });
+    // User lookup/creation
+    let user = await User.findOne({ googleUserId });
+    const isNewUser = !user;
+    
+    if (!user) {
+      user = new User({ googleUsername, googleProfilePhotoUrl, googleUserId });
     }
+
+    // Token generation and encryption
+    const apiAccessToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    console.log("Original Access token:", apiAccessToken);
+    
+    // Encrypt the token before saving it
+    user.apiAccessToken = encryptData(apiAccessToken);
+    await user.save();
+
+    return res.status(isNewUser ? 201 : 200).json(
+      sendResponse(user, isNewUser ? 'User registered' : 'User logged in')
+    );
+
+  } catch (error) {
+    console.error('Registration Error:', error);
+    return res.status(500).json({
+      message: 'Server Error',
+      error: error.message
+    });
+  }
 };
+

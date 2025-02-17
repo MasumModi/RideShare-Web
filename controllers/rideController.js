@@ -8,7 +8,16 @@ exports.postRide = [
       const { isDriver, date, time, pickupLocation, dropoffLocation, bags, seats } = req.body;
 
       // Input validation
-      if (!isDriver || !date || !time || !pickupLocation || !dropoffLocation || !bags || !seats) {
+      if (
+        date === undefined || 
+        time === undefined || 
+        pickupLocation === undefined || 
+        dropoffLocation === undefined || 
+        bags === undefined || 
+        seats === undefined || 
+        isDriver === undefined
+      ) {
+        console.log(isDriver, date, time, pickupLocation, dropoffLocation, bags, seats);
         return res.status(400).json({ message: 'Missing required fields' });
       }
 

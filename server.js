@@ -5,6 +5,7 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const rideRoutes = require('./routes/rideRoutes');
 const ridelistRoutes = require('./routes/ridelistRoutes');
+const myridesRoutes = require('./routes/myridesRoutes.js');
 
 // Initialize dotenv
 dotenv.config();
@@ -16,6 +17,7 @@ app.use(cors());
 app.use('/api/users', userRoutes);
 app.use('/api/rides', rideRoutes);
 app.use('/api/rideslist', ridelistRoutes);
+app.use('/api/myride', myridesRoutes);
 
 // Connect to MongoDB
 mongoose

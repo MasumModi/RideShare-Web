@@ -40,8 +40,6 @@ module.exports = app;
 // const ridelistRoutes = require('./routes/ridelistRoutes');
 // const myridesRoutes = require('./routes/myridesRoutes.js');
 
-
-
 // // Initialize dotenv
 // dotenv.config();
 

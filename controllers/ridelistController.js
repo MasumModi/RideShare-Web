@@ -3,8 +3,9 @@ const Ride = require('../models/Ride');
 // GET all rides with filtering and pagination
 const getRide = async (req, res) => {
   try {
-    // Extract filters from query parameters
-    const { city, time, seats, date, page = 1, limit = 10 } = req.query;
+    // Extract filters from the request body
+    const { city, time, seats, startDate, endDate, page = 1, limit = 10 } = req.body;
+    console.log('Request Body:', req.body); // Debugging logs
 
     // Convert pagination params to integers
     const pageNumber = parseInt(page) || 1;
@@ -14,24 +15,40 @@ const getRide = async (req, res) => {
     // Build the filter object dynamically
     const filter = {};
 
-    // If a city is provided, search in both pickupLocation and dropoffLocation
+    // City filter: Check if 'city' is provided
     if (city) {
+      const regex = new RegExp(`${city}`, 'i'); // Case-insensitive match
       filter.$or = [
-        { pickupLocation: { $regex: new RegExp(`^${city}$`, 'i') } },
-        { dropoffLocation: { $regex: new RegExp(`^${city}$`, 'i') } }
+        { pickupLocation: { $regex: regex } },
+        { dropoffLocation: { $regex: regex } }
       ];
     }
 
+    // Time filter: Check if 'time' is provided
     if (time) {
       filter.time = time; // Exact time match
     }
 
+    // Seats filter: Check if 'seats' is provided
     if (seats) {
-      filter.seatsNeeded = { $gte: parseInt(seats) }; // Find rides with at least the requested seats
+      filter.seats = { $gte: parseInt(seats) }; // Find rides with at least the requested seats
     }
 
-    if (date) {
-      filter.date = new Date(date); // Match exact date
+    // Date range filter: Check if 'startDate' and 'endDate' are provided
+    if (startDate && endDate) {
+      // Convert the start and end date strings into Date objects
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      // Ensure that both start and end dates are in the same format (ignore time)
+      start.setHours(0, 0, 0, 0); // Set to midnight
+      end.setHours(23, 59, 59, 999); // Set to the end of the day
+
+      // Add the date range filter to the query
+      filter.date = {
+        $gte: start, // Start date inclusive
+        $lte: end // End date inclusive
+      };
     }
 
     console.log("Applying Filters:", filter); // Debugging filter object

@@ -41,9 +41,8 @@ exports.registerUser = async (req, res) => {
     // Token generation and encryption
     const apiAccessToken = jwt.sign(
       { userId: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+      process.env.JWT_SECRET
+  );  
 
     console.log("Original Access token:", apiAccessToken);
     

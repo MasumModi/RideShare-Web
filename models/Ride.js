@@ -22,7 +22,7 @@ const rideSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  dropoffLocation: { 
+  dropOffLocation: { 
     type: String, 
     required: true 
   },

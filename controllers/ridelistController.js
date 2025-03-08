@@ -20,7 +20,7 @@ const getRide = async (req, res) => {
       const regex = new RegExp(`${city}`, 'i'); // Case-insensitive match
       filter.$or = [
         { pickupLocation: { $regex: regex } },
-        { dropoffLocation: { $regex: regex } }
+        { dropOffLocation: { $regex: regex } }
       ];
     }
 

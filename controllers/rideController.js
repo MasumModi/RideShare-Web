@@ -5,19 +5,19 @@ exports.postRide = [
   verifyApiAccessToken, // Middleware to validate access token
   async (req, res) => {
     try {
-      const { isDriver, date, time, pickupLocation, dropOffLocation, bags, seats } = req.body;
+      const { isDriver, date, time, pickupLocation, dropOffLocation, bags, seats, isFlexibleTime } = req.body;
 
       // Input validation
       if (
+        isDriver === undefined ||
         date === undefined || 
         time === undefined || 
         pickupLocation === undefined || 
         dropOffLocation === undefined || 
         bags === undefined || 
-        seats === undefined || 
-        isDriver === undefined
+        seats === undefined
       ) {
-        console.log(isDriver, date, time, pickupLocation, dropOffLocation, bags, seats);
+        console.log(isDriver, date, time, pickupLocation, dropOffLocation, bags, seats, isFlexibleTime);
         return res.status(400).json({ message: 'Missing required fields' });
       }
 
@@ -30,7 +30,8 @@ exports.postRide = [
         pickupLocation,
         dropOffLocation,
         bags,
-        seats
+        seats,
+        isFlexibleTime: isFlexibleTime !== undefined ? isFlexibleTime : false // Default to false if not provided
       });
 
       // Save the ride to the database
@@ -44,6 +45,7 @@ exports.postRide = [
           isDriver: savedRide.isDriver,
           date: savedRide.date,
           time: savedRide.time,
+          isFlexibleTime: savedRide.isFlexibleTime, // Return the flexible time status
           pickupLocation: savedRide.pickupLocation,
           dropOffLocation: savedRide.dropOffLocation,
           bags: savedRide.bags,

@@ -18,6 +18,10 @@ const rideSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
+  isFlexibleTime: { 
+    type: Boolean, 
+    default: false // By default, isFlexibleTime will be false
+  },
   pickupLocation: { 
     type: String, 
     required: true 
